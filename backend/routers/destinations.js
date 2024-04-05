@@ -49,21 +49,30 @@ router.get('/:id', async (req, res) => {
     
     try {
         const query = `
-        SELECT 
-          D.*, 
-          C.cuisine_id, 
-          C.cuisine_name, 
-          C.description AS cuisine_description, 
-          C.image_url AS cuisine_image_url,
-          R.restaurant_id,
-          R.name AS restaurant_name,
-          R.address AS restaurant_address,
-          R.contact_info AS restaurant_contact_info
-        FROM Destinations D
-        LEFT JOIN Cuisines C ON D.destination_id = C.destination_id
-        LEFT JOIN Restaurants R ON D.destination_id = R.destination_id
-        WHERE D.destination_id = $1
-      `;
+            SELECT 
+                D.*, 
+                C.cuisine_id, 
+                C.cuisine_name, 
+                C.description AS cuisine_description, 
+                C.image_url AS cuisine_image_url,
+                R.restaurant_id,
+                R.name AS restaurant_name,
+                R.address AS restaurant_address,
+                R.contact_info AS restaurant_contact_info,
+                RV.review_id,
+                RV.user_id AS review_user_id,
+                U.username AS review_username,
+                RV.review_text,
+                RV.rating AS review_rating,
+                RV.timestamp AS review_timestamp
+            FROM Destinations D
+            LEFT JOIN Cuisines C ON D.destination_id = C.destination_id
+            LEFT JOIN Restaurants R ON D.destination_id = R.destination_id
+            LEFT JOIN Reviews RV ON D.destination_id = RV.destination_id
+            LEFT JOIN Users U ON RV.user_id = U.user_id
+            WHERE D.destination_id = $1
+        `;
+        
         const result = await client.query(query, [destinationId]);
 
         if (result.rows.length === 0) {
@@ -88,6 +97,14 @@ router.get('/:id', async (req, res) => {
                 name: row.restaurant_name,
                 address: row.restaurant_address,
                 contact_info: row.restaurant_contact_info
+            })),
+            reviews: result.rows.map(row => ({
+                review_id: row.review_id,
+                user_id: row.review_user_id,
+                username: row.review_username,
+                review_text: row.review_text,
+                rating: row.review_rating,
+                timestamp: row.review_timestamp
             }))
         };
 
