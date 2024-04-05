@@ -9,7 +9,7 @@ const app = express()
 app.use(express.json())
 app.use('/', authRouter)
 app.use('/destinations', destinationRouter)
-app.use('flights', flightRouter)
+app.use('/flights', flightRouter)
 
 app.listen('3000', () => {
     console.log('Server started on port 3000')

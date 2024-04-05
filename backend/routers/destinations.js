@@ -46,7 +46,7 @@ router.get('/location/:location', (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const destinationId = req.params.id;
-
+    
     try {
         const query = `
         SELECT 
