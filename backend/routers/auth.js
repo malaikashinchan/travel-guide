@@ -39,11 +39,11 @@ router.post('/signup', (req, res) => {
         const insertQuery = 'INSERT INTO Users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING user_id';
         client.query(insertQuery, [username, email, password, role], (err, result) => {
             if (err) {
-                console.error('Error executing signup query:', err);
+                console.error('Error executing signup query: ', err);
                 res.status(500).send('Internal Server Error');
                 return;
             }
-            const token = jwt.sign({ userId: result.rows[0].user_id, role: result.rows[0].role }, 'secret');
+            const token = jwt.sign({ userId: result.rows[0].user_id, role: role }, 'secret');
             res.status(201).send(token);
         });
     });

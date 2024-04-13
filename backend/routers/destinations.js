@@ -55,10 +55,10 @@ router.get('/:id', async (req, res) => {
                 C.cuisine_name, 
                 C.description AS cuisine_description, 
                 C.image_url AS cuisine_image_url,
-                R.restaurant_id,
-                R.name AS restaurant_name,
-                R.address AS restaurant_address,
-                R.contact_info AS restaurant_contact_info,
+                H.hotel_id,
+                H.name AS hotel_name,
+                H.address AS hotel_address,
+                H.contact_info AS hotel_contact_info,
                 RV.review_id,
                 RV.user_id AS review_user_id,
                 U.username AS review_username,
@@ -67,7 +67,7 @@ router.get('/:id', async (req, res) => {
                 RV.timestamp AS review_timestamp
             FROM Destinations D
             LEFT JOIN Cuisines C ON D.destination_id = C.destination_id
-            LEFT JOIN Restaurants R ON D.destination_id = R.destination_id
+            LEFT JOIN Hotels H ON D.destination_id = H.destination_id
             LEFT JOIN Reviews RV ON D.destination_id = RV.destination_id
             LEFT JOIN Users U ON RV.user_id = U.user_id
             WHERE D.destination_id = $1
@@ -92,11 +92,11 @@ router.get('/:id', async (req, res) => {
                 description: row.cuisine_description,
                 image_url: row.cuisine_image_url
             })),
-            nearbyRestaurants: result.rows.map(row => ({
-                restaurant_id: row.restaurant_id,
-                name: row.restaurant_name,
-                address: row.restaurant_address,
-                contact_info: row.restaurant_contact_info
+            nearbyHotels: result.rows.map(row => ({
+                hotel_id: row.hotel_id,
+                name: row.hotel_name,
+                address: row.hotel_address,
+                contact_info: row.hotel_contact_info
             })),
             reviews: result.rows.map(row => ({
                 review_id: row.review_id,

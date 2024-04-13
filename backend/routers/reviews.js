@@ -11,7 +11,7 @@ router.post('/:destinationId', verifyToken, (req, res) => {
     const insertReviewQuery = `
         INSERT INTO Reviews (destination_id, user_id, review_text, rating, timestamp)
         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-    `;
+    `; 
     const values = [destinationId, userId, reviewText, rating];
 
     client.query(insertReviewQuery, values, (err) => {

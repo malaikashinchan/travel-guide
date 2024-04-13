@@ -14,6 +14,8 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import { MenuItem } from '@mui/material';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Copyright(props) {
     return (
@@ -31,15 +33,29 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-    const [role, setRole] = React.useState('')
+    const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const [role, setRole] = React.useState('')
+    const [username, setUsername] = React.useState('')
+    const [password, setPassword] = React.useState('')
+    const [email, setEmail] = React.useState('')
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
         console.log({
-            email: data.get('email'),
-            password: data.get('password'),
+            username: username,
+            email: email,
+            password: password,
+            role: role
         });
+        const response = await axios.post('http://localhost:3000/signup', {
+            username: username,
+            email: email,
+            password: password,
+            role: role
+        });
+        localStorage.setItem('token', response.data)
+        navigate('/hoes')
     };
 
     const handleChange = (e) => {
@@ -69,12 +85,13 @@ export default function SignUp() {
                             <Grid item xs={12}>
                                 <TextField
                                     autoComplete="given-name"
-                                    name="firstName"
+                                    name="username"
                                     required
                                     fullWidth
-                                    id="firstName"
-                                    label="First Name"
+                                    id="username"
+                                    label="Username"
                                     autoFocus
+                                    onChange={(e) => setUsername(e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -85,6 +102,7 @@ export default function SignUp() {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -96,10 +114,11 @@ export default function SignUp() {
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
+                                    onChange={(e) => setPassword(e.target.value)}
                                 />
                             </Grid>
                         </Grid>
-                        <FormControl fullWidth>
+                        <FormControl fullWidth sx={{mt: 2}}>
                             <InputLabel id="demo-simple-select-label">Role</InputLabel>
                             <Select
                                 labelId="demo-simple-select-label"
@@ -109,13 +128,14 @@ export default function SignUp() {
                                 onChange={handleChange}
                             >
                                 <MenuItem value={"user"}>User</MenuItem>
-                                <MenuItem value={"Admin"}>Admin</MenuItem>
+                                <MenuItem value={"admin"}>Admin</MenuItem>
                             </Select>
                         </FormControl>
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
+                            onClick={handleSubmit}
                             sx={{ mt: 3, mb: 2 }}
                         >
                             Sign Up
