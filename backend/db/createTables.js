@@ -75,7 +75,7 @@ const createUsersTableQuery = `
         location VARCHAR(100),
         rating DECIMAL(3,2),
         image_url VARCHAR(255),
-        price DECIMAL(10, 2) NOT NULL CHECK (price > 0)
+        price DECIMAL(10, 2) NOT NULL CHECK (price > 0) 
     );
 
     CREATE OR REPLACE FUNCTION validate_flight_schedule() RETURNS TRIGGER AS $$

@@ -25,13 +25,13 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const { airline, departure_airport, arrival_airport, departure_time, arrival_time, price } = req.body;
 
-    try {
+    try { 
         const query = `
         INSERT INTO Flights (airline, departure_airport, arrival_airport, departure_time, arrival_time, price)
         VALUES ($1, $2, $3, $4, $5, $6)
       `;
         await client.query(query, [airline, departure_airport, arrival_airport, departure_time, arrival_time, price]);
-
+ 
         res.status(201).json({ message: 'Flight inserted successfully' });
     } catch (error) {
         console.error('Error inserting flight:', error);

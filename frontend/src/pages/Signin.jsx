@@ -40,7 +40,7 @@ export default function SignIn() {
       password: data.get('password'),
     });
     localStorage.setItem('token', response.data)
-    navigate('/hoes')
+    navigate('/home')
   };
 
   return (

@@ -31,19 +31,6 @@ router.post('/', verifyToken, (req, res) => {
     });
 });
 
-router.get('/location/:location', (req, res) => {
-    const location = req.params.location;
-
-    client.query('SELECT * FROM Destinations WHERE location = $1', [location], (err, result) => {
-        if (err) {
-            console.error('Error executing destinations query:', err);
-            res.status(500).send('Internal Server Error');
-            return;
-        }
-        res.json(result.rows);
-    });
-});
-
 router.get('/:id', async (req, res) => {
     const destinationId = req.params.id;
     
@@ -114,5 +101,40 @@ router.get('/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+router.get('/location/:location', async (req, res) => {
+    const locationName = req.params.location;
+  
+    try {
+      const destinationsQuery = `
+        SELECT *
+        FROM Destinations
+        WHERE location ILIKE $1
+      `;
+      const destinationsResult = await client.query(destinationsQuery, [`%${locationName}%`]);
+      const destinations = destinationsResult.rows;
+
+      const hotelsQuery = `
+        SELECT *
+        FROM Hotels
+        WHERE location ILIKE $1
+      `;
+      const hotelsResult = await client.query(hotelsQuery, [`%${locationName}%`]);
+      const hotels = hotelsResult.rows;
+  
+      const flightsQuery = `
+        SELECT *
+        FROM Flights
+        WHERE departure_airport ILIKE $1 OR arrival_airport ILIKE $1
+      `;
+      const flightsResult = await client.query(flightsQuery, [`%${locationName}%`]);
+      const flights = flightsResult.rows;
+  
+      res.status(200).json({ destinations, hotels, flights });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
 
 module.exports = router

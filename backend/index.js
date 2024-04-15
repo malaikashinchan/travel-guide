@@ -19,7 +19,7 @@ app.use('/flights', flightRouter)
 app.use('/reviews', reviewsRouter)
 app.use('/favorite', favoriteRouter)
 app.use('/hotels', hotelRouter) 
-
+ 
 app.listen('3000', () => {
     console.log('Server started on port 3000')
 }) 

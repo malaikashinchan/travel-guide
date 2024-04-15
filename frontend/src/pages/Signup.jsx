@@ -55,7 +55,7 @@ export default function SignUp() {
             role: role
         });
         localStorage.setItem('token', response.data)
-        navigate('/hoes')
+        navigate('/home')
     };
 
     const handleChange = (e) => {
