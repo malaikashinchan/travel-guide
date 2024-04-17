@@ -4,9 +4,10 @@ const createUsersTableQuery = `
     CREATE TABLE IF NOT EXISTS Users (
         user_id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL,
-        email VARCHAR(100) NOT NULL UNIQUE,
+        email VARCHAR(100) NOT NULL UNIQUE CECK(email LIKE '%@%.com%'),
         password VARCHAR(255) NOT NULL CHECK (LENGTH(password) >= 6),
         role VARCHAR(10) NOT NULL CHECK (role IN ('user', 'admin')),
+        status VARCHAR(15) NOT NULL CHECK (status IN ('adult', 'student')),
         balance DECIMAL(10, 2) NOT NULL DEFAULT 10000000
     );
 
@@ -93,8 +94,50 @@ const createUsersTableQuery = `
     BEFORE INSERT ON Flights
     FOR EACH ROW
     EXECUTE FUNCTION validate_flight_schedule();
-`;
 
+    CREATE OR REPLACE FUNCTION set_flight_price() RETURNS TRIGGER AS $$
+    BEGIN
+        IF NEW.booking_type = 'flight' AND NEW.user_id IN (SELECT user_id FROM Users WHERE status = 'student') THEN
+            NEW.price = NEW.price * 0.5;
+        END IF;
+
+        -- Return the new row
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+   
+    DROP TRIGGER IF EXISTS set_flight_price_trigger ON Bookings;
+
+    CREATE TRIGGER set_flight_price_trigger
+    BEFORE INSERT ON Bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION set_flight_price();
+
+
+    CREATE OR REPLACE FUNCTION update_destination_rating() RETURNS TRIGGER AS $$
+    DECLARE
+        avg_rating DECIMAL(3, 2);
+    BEGIN
+  
+        SELECT AVG(rating) INTO avg_rating
+        FROM Reviews
+        WHERE destination_id = NEW.destination_id;
+
+        UPDATE Destinations
+        SET rating = avg_rating
+        WHERE destination_id = NEW.destination_id;
+
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    DROP TRIGGER IF EXISTS update_destination_rating_trigger ON Reviews;
+    CREATE TRIGGER update_destination_rating_trigger
+    AFTER INSERT OR UPDATE OR DELETE ON Reviews
+    FOR EACH ROW
+    EXECUTE FUNCTION update_destination_rating();
+`;
 client.query(createUsersTableQuery, (err) => {
     if (err) {
         console.error('Error creating tables:', err);
